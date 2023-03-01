@@ -8,6 +8,24 @@ import numpy as np
 from PIL import Image
 
 
+#计算二值图分布
+def towIndex(img):
+    imgArray = np.array(img)
+    imgSize = img.width*img.height
+    b = 0
+    w = 0
+    for i in range(img.height):
+        for j in range(img.width):
+            if imgArray[i][j] == 255:
+                w = w + 1
+            elif imgArray[i][j] == 0:
+                b = b + 1
+    b = b/float(imgSize)
+    w = w/float(imgSize)
+    I = 0-(b*math.log2(b)+(w*math.log2(w)))
+    I = '{:.2%}'.format(I)
+    print("图像信息量为："+str(I)+"dB")
+
 # LSB隐写算法
 # 载体初始化函数
 def carry():
@@ -339,5 +357,6 @@ elif isinstance(ciphertext, numpy.ndarray):
     FR = falseRate(newciphertext, new_map)
     FR = '{:.2%}'.format(FR)
     print("错误率 FalseRate=%s" % (FR))
+    towIndex(new_map)
     # 显示图像
     # new_map.show()
