@@ -6,17 +6,18 @@ import re
 import numpy
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 
 # LSB隐写算法
 # 载体初始化函数
 def carry():
-    filelist = os.listdir(".\data\carry")
+    filelist = os.listdir(".\data\carray")
     for i in range(0, len(filelist)):
-        width = Image.open(".\data\carry\\" + filelist[i]).width
-        height = Image.open(".\data\carry\\" + filelist[i]).height
-        print(str(i) + "." + filelist[i] + " " + str(width) + "*" + str(height) + "\n")
+        width = Image.open(".\data\carray\\" + filelist[i]).width
+        height = Image.open(".\data\carray\\" + filelist[i]).height
+        print(str(i+1) + "." + filelist[i] + " " + str(width) + "*" + str(height) + "\n")
     number = int(input("请选择密文载体图像(输入序号)："))
-    return Image.open(".\data\carry\\" + filelist[number])
+    return Image.open(".\data\carray\\" + filelist[number-1])
 
 
 # 格式化bin()函数处理后的ascii码
@@ -297,8 +298,25 @@ elif isinstance(ciphertext, numpy.ndarray):
             imgArray[i][j] = (imgArray[i][j] - (imgArray[i][j] % 2)) + int(ciphertext[i - y][j - x])
 
 # 写入结果展示
+print(imgArray)
 newCarray = Image.fromarray(imgArray)
 # newCarray.show()
+# 写入结果二值图
+bitArray = np.zeros((carrayImg.height,carrayImg.width))
+for i in range(carrayImg.height):
+    for j in range(carrayImg.width):
+        if imgArray[i][j]%2==0:
+            bitArray[i][j]=0
+        elif imgArray[i][j]%2==1:
+            bitArray[i][j]=255
+
+bitArray = np.matrix(bitArray)
+print(bitArray)
+bitImage = Image.fromarray(bitArray)
+plt.subplot(111)
+plt.imshow(bitImage)
+plt.axis()
+plt.show()
 
 # 还原载体图像
 newImage = reColor(carrayImg, newCarray, RGB)

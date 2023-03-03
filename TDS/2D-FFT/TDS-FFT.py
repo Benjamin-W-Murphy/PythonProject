@@ -4,6 +4,7 @@ import re
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 # 格式化bin()函数处理后的ascii码
 def plus(string):
@@ -62,7 +63,7 @@ def getCarray():
         width,height = img.shape[:2]
         print(str(i+1) + "." + imgList[i] + " " + str(width) + "*" + str(height) + "\n")
     number = int(input("请选择密文载体图像(输入序号)："))
-    return str("D:\Study\Codes\PythonProject\TDS\data\carray\\" + imgList[number-1])
+    return str("D:\Study\Codes\PythonProject\TDS\\2D-FFT\data\carray\\" + imgList[number-1])
 
 #选择隐写内容
 def creatCiphertext():
@@ -75,18 +76,19 @@ def creatCiphertext():
             print(str(i) + "." + filelist[i-1] + "\n")
         number = int(input("请选择密文图像(输入序号)："))
         # 格式化图像地址
-        path = "D:\Study\Codes\PythonProject\TDS\data\ciphertext\pic\\"+filelist[number-1]
+        path = "D:\Study\Codes\PythonProject\TDS\\2D-FFT\data\ciphertext\pic\\"+filelist[number-1]
         # 读取灰度图
         imgCiphertext = cv2.imread(path,0)
         # 将图像转化为数组
         ciphertext = np.array(imgCiphertext)
+        # 将图像转化为bit流
         height, width = ciphertext.shape
         for i in range(height):
             for j in range(width):
-                if int(ciphertext[i][j])>128:
-                    ciphertext[i][j]=1.0
-                elif int(ciphertext[i][j])<128:
-                    ciphertext[i][j]=0.0
+                if ciphertext[i][j]>127:
+                    ciphertext[i][j]=1
+                else:
+                    ciphertext[i][j]=0
     elif number == "2":
         print("文本密文输入方式：1.手动输入 2.记事本输入")
         num = input("请选择文本输入方式：")
@@ -117,8 +119,7 @@ def encrypt(carrayImg,ciphertext):
     cheight,cwidth = carrayImg.shape
     for i in range(height):
         for j in range(width):
-            carrayImg[i][j]=(carrayImg[i][j]-carrayImg[i][j]%2)+ciphertext[i][j]
-            # carrayImg[cheight-i-1][cwidth-j-1]=ciphertext[i][j]
+            carrayImg[i][j]=carrayImg[i][j]+ciphertext[i][j]
     return carrayImg
 
 #隐写性能计算，峰值信噪比
@@ -130,39 +131,40 @@ def psnr(carrayImg, newCarrayImg):
         return 100
     return 10 * math.log10(255.0 ** 2 / mse)
 
+#输出频带图
+def showfrequencyband(imgArray):
+    size = imgArray.shape
+    Y = np.arange(0, size[0], 1)
+    X = np.arange(0, size[1], 1)
+
+    X, Y = np.meshgrid(X, Y)
+    fig = plt.figure()
+    ax = plt.axes(projection="3d")
+    ax.plot_surface(X, Y, imgArray, cmap=cm.hot)
+    plt.show()
+
 path = getCarray()
 img = cv2.imread(path,0)
-ciphertext=creatCiphertext()
-ciphertext.dtype='float64'
+ciphertext = creatCiphertext()
+# 对密文进行傅里叶变换
+cfft2 = np.fft.fft2(ciphertext)
+cfft2img = 20*np.log(np.abs(cfft2))
 
 #傅里叶变换
 fft2 = np.fft.fft2(img)             #快速傅里叶变换得到频率分布
 fftShift = np.fft.fftshift(fft2)    #将图像中的低频部分移动到图像中心
-fimg = 20*np.log(np.abs(fftShift))  #将复数数组重新标定范围，设置频谱范围到[0-255]，设置为20
+fftShiftimg = 20*np.log(np.abs(fftShift))  #将复数数组重新标定范围，设置频谱范围到[0-255]，设置为20
+fft2img = 20*np.log(np.abs(fft2))
+showfrequencyband(fft2img)
 
-#隐写信息
-fimg = encrypt(fimg,ciphertext)
+#将图像进行写入
+cfftimg = encrypt(fft2img,cfft2img)
 
 #逆傅里叶变换
-ifftShift = np.fft.ifftshift(fimg)  #将低频移回左上角
-idft = cv2.idft(ifftShift)
-ifft = np.fft.ifft2(idft)          #逆傅里叶变换得到复数数组
-ifimg = 20*np.log(np.abs(ifft))                    #将复数数组映射到[0,255]
-#经过傅里叶变换和逆傅里叶变换得到的都是复数数组，不能直接显示出灰度图像，要将复数数组映射到[0,255]才能正确显示灰度图像
+icfft = np.fft.ifft2(cfftimg)
+icffimg = 20*np.log(np.abs(icfft))
 
-'''
-subplot(numRows, numCols, plotNum)设置输出组图
-其中numRows和numCols的行和列
-plotNum是创建的Axes对象所在区域
-如subplot(231),及在一个2*3的区域内，将当前Axes对象绘制在(1,1)坐标处
-'''
-plt.subplot(211)
-plt.imshow(fimg,'gray')
-plt.axis()
-plt.subplot(212)
-plt.imshow(ifimg,'gray')
-plt.axis()
-plt.show()
 
-print("峰值信噪比 PSNR=%.1f dB"%(psnr(img,ifimg)))
-# print("PSNR="+str(psnr(img,ifimg)))
+#作图
+
+showfrequencyband(cfftimg)
