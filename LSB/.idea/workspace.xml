@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="204b222d-6986-4a3b-9c43-d27514a7492a" name="变更" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/LSB.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LSB.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LSB隐写算法.py" beforeDir="false" afterPath="$PROJECT_DIR$/LSB隐写算法.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/改进型LSB算法.py" beforeDir="false" afterPath="$PROJECT_DIR$/改进型LSB算法.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,7 +40,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "D:/Study/Codes/PythonProject/LSB",
+    "last_opened_file_path": "D:/Study/codes/PythonProject/LSB",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -59,6 +60,7 @@
       <workItem from="1677130374557" duration="6436000" />
       <workItem from="1677243971033" duration="174000" />
       <workItem from="1677828074770" duration="2955000" />
+      <workItem from="1678170794085" duration="8707000" />
     </task>
     <servers />
   </component>
@@ -78,6 +80,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/NumPy_Study$NumPyStudy.coverage" NAME="NumPyStudy 覆盖结果" MODIFIED="1677136487744" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/LSB$LSB.coverage" NAME="LSB隐写算法 覆盖结果" MODIFIED="1677831471204" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/LSB$LSB.coverage" NAME="改进型LSB算法 覆盖结果" MODIFIED="1678180741496" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
