@@ -10,8 +10,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
-# LSB隐写算法
-# 载体初始化函数
+# 载体图像处理函数
+# 载体初始化
 def carry():
     filelist = os.listdir(".\data\carray")
     for i in range(0, len(filelist)):
@@ -19,7 +19,33 @@ def carry():
         height = Image.open(".\data\carray\\" + filelist[i]).height
         print(str(i+1) + "." + filelist[i] + " " + str(width) + "*" + str(height) + "\n")
     number = int(input("请选择密文载体图像(输入序号)："))
-    return Image.open(".\data\carray\\" + filelist[number-1])
+    img = Image.open(".\data\carray\\" + filelist[number-1])
+    # 将载体图像以RBG格式打开
+    img = img.convert("RGB")
+    return img
+# 输出0-7位的灰度图
+def getImgSplit(imgArray):
+    height,width = imgArray.shape
+    # 新建零矩阵
+    newArray = np.zeros((height,width),dtype="uint8")
+    size = height*width
+    m = 1
+    n = 1
+    while n<=7:
+        for i in range(height):
+            for j in range(width):
+                newArray[i][j] = imgArray[i][j]&((2**n)-1)
+                m = m + 1
+                sys.stdout.write(("\r当前完成 :{0}/"+str(size)).format(m))
+                sys.stdout.flush()
+        n = n + 1
+        m = 1
+        pic = Image.fromarray(newArray)
+        plt.subplot(810+n)
+        plt.imshow(pic,cmap='gray',vmin=0,vmax=255)
+        plt.axis()
+    plt.show()
+
 
 # 文本型隐写密文处理函数
 # 格式化bin()函数处理后的ascii码
@@ -57,6 +83,7 @@ def getBitImage(ciphertextArray):
     height,width = ciphertextArray.shape
     for i in range(height):
         for j in range(width):
+            # 将01映射到[0,255]灰阶数字中
             if ciphertextArray[i][j]==0:
                 continue
             else:
@@ -113,18 +140,19 @@ def imgToCiphertext(img):
     times = 500
     # 将图片分割成三个颜色通道
     r,g,b = img.split()
+    # 将三通道色分开进行置乱
     R = logistic(r, x, u, times)
     G = logistic(g, x, u, times)
     B = logistic(b, x, u, times)
-
+    # 将置乱后的信息从矩阵转会单通道图像
     R = Image.fromarray(R)
     G = Image.fromarray(G)
     B = Image.fromarray(B)
-
-
+    # 恢复RGB图像
     cimg = Image.merge("RGB",(R,G,B))
-    cimg.show()
     return cimg
+
+
 
 # 密文初始化函数
 def creatCiphertext():
@@ -136,10 +164,13 @@ def creatCiphertext():
             print(str(i) + "." + filelist[i-1] + "\n")
         number = int(input("请选择密文图像(输入序号)："))
         imgCiphertext = Image.open(".\data\ciphertext\pic\\" + filelist[number-1])
-        # 隐写图像灰度化
+        # 将读取到的图片格式化成RGB
         imgCiphertext = imgCiphertext.convert("RGB")
+        # 基于混沌Logistic映射将不同颜色通道的图像进行加密
         imgCiphertext = imgToCiphertext(imgCiphertext)
+        # 将加密后的图像转换成灰度值
         imgCiphertext = imgCiphertext.convert("L")
+        # 将灰度图展开成bit矩阵
         ciphertext = numpy.array(imgCiphertext)
         ciphertext = toBitImg(ciphertext)
     elif number == "2":
@@ -166,18 +197,15 @@ def creatCiphertext():
     return ciphertext
 
 # 载体图像处理
-# 颜色通道选择函数
-def choiceColor(img, RGB):
-    r, g, b = img.split()
-    if RGB == "r":
-        return r
-    elif RGB == "g":
-        return g
-    elif RGB == "b":
-        return b
 
 
-c = creatCiphertext()
+# 密钥生成算法
+'''
+分析图像灰度图的各层，提取嵌入位置信息作为key
+
+'''
+
+img = carry()
 
 
 
