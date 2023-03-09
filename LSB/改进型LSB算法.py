@@ -21,7 +21,7 @@ def carry():
     number = int(input("请选择密文载体图像(输入序号)："))
     return Image.open(".\data\carray\\" + filelist[number-1])
 
-
+# 文本型隐写密文处理函数
 # 格式化bin()函数处理后的ascii码
 def plus(string):
     return string.zfill(8)
@@ -32,17 +32,16 @@ def toBit(ciphertext):
         string = string + "" + plus(bin(ord(ciphertext[i])).replace('0b', ''))
     list = re.findall(r'.{1}', string)
     listLen = len(list)
+    print(listLen)
     width = listLen
     height = 1
     n=0
     # 规定矩阵行列
-    while 1==1:
-        if width%2==0:
-            continue
-        else:
+    while width%2==0:
+        if width==height:
             break
         n=n+1
-        width = int(listLen/2)
+        width = int(width/2)
         height = int(2**n)
     # 初始化bit矩阵
     bitArray = np.zeros((height,width))
@@ -53,6 +52,34 @@ def toBit(ciphertext):
             bitArray[i][j] = list[n]
             n = n + 1
     return bitArray
+# 格式化文本密文输出图像
+def getBitImage(ciphertextArray):
+    height,width = ciphertextArray.shape
+    for i in range(height):
+        for j in range(width):
+            if ciphertextArray[i][j]==0:
+                continue
+            else:
+                ciphertextArray[i][j]=255
+    return ciphertextArray
+# 计算文本型密文的信息量和信息熵
+def getInformation(ciphertextArray):
+    black = 0
+    white = 0
+    height, width = ciphertextArray.shape
+    for i in range(height):
+        for j in range(width):
+            if ciphertextArray[i][j]==0:
+                black = black + 1
+            else:
+                white = white + 1
+    # 计算信息量
+    information = -(math.log2(black/(width*height))+math.log2(white/(width*height)))
+    # 计算信息熵
+    informationEntropy = -((black/(width*height))*math.log2(black/(width*height))+(white/(width*height)*math.log2(white/(width*height))))
+    return information,informationEntropy
+
+# 图片型隐写密文处理函数
 # 将密文图片转化位bit矩阵
 def toBitImg(img):
     height,width = img.shape
@@ -62,7 +89,42 @@ def toBitImg(img):
             string = string + "" + plus(bin(img[i][j]).replace('0b',''))
     list = re.findall(r'.{1}',string)
     return list
-# 将密文矩阵映射到
+# 将密文图片基于混沌Logistic映射加密算法加密
+# 0<x<1 , 3.5699<u<4 , times为迭代次数
+def logistic(Img, x, u,times):
+    M = Img.size[0]
+    N = Img.size[1]
+    for i in range(1, times):
+        x = u * x * (1 - x)
+    array = np.zeros(M * N)
+    array[1] = x
+    for i in range(1, M * N - 1):
+        array[i + 1] = u * array[i] * (1 - array[i])
+    array = np.array(array * 255, dtype='uint8')
+    code = np.reshape(array, (M, N))
+    xor = Img ^ code
+    v = xor
+    return v
+# 密文图像加密
+def imgToCiphertext(img):
+    # 定义logistic运算参数
+    x = 0.1
+    u = 4
+    times = 500
+    # 将图片分割成三个颜色通道
+    r,g,b = img.split()
+    R = logistic(r, x, u, times)
+    G = logistic(g, x, u, times)
+    B = logistic(b, x, u, times)
+
+    R = Image.fromarray(R)
+    G = Image.fromarray(G)
+    B = Image.fromarray(B)
+
+
+    cimg = Image.merge("RGB",(R,G,B))
+    cimg.show()
+    return cimg
 
 # 密文初始化函数
 def creatCiphertext():
@@ -74,7 +136,9 @@ def creatCiphertext():
             print(str(i) + "." + filelist[i-1] + "\n")
         number = int(input("请选择密文图像(输入序号)："))
         imgCiphertext = Image.open(".\data\ciphertext\pic\\" + filelist[number-1])
-        # 隐写图像二值化
+        # 隐写图像灰度化
+        imgCiphertext = imgCiphertext.convert("RGB")
+        imgCiphertext = imgToCiphertext(imgCiphertext)
         imgCiphertext = imgCiphertext.convert("L")
         ciphertext = numpy.array(imgCiphertext)
         ciphertext = toBitImg(ciphertext)
@@ -101,6 +165,7 @@ def creatCiphertext():
             ciphertext = toBit(ciphertext)
     return ciphertext
 
+# 载体图像处理
 # 颜色通道选择函数
 def choiceColor(img, RGB):
     r, g, b = img.split()
@@ -113,8 +178,8 @@ def choiceColor(img, RGB):
 
 
 c = creatCiphertext()
-print(c)
-print(c.shape)
+
+
 
 # pic = carry()
 # print(pic)
