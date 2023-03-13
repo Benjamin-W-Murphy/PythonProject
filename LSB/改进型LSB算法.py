@@ -21,7 +21,7 @@ def carry():
     number = int(input("请选择密文载体图像(输入序号)："))
     img = Image.open(".\data\carray\\" + filelist[number-1])
     # 将载体图像以RBG格式打开
-    img = img.convert("RGB")
+    img = img.convert("L")
     return img
 # 输出0-7位的灰度图
 def getImgSplit(imgArray):
@@ -206,7 +206,7 @@ def creatCiphertext():
 '''
 
 img = carry()
-
+print(img)
 
 
 # pic = carry()
